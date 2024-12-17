@@ -1,0 +1,6 @@
+name: univalent-categories
+depend: cubical
+include: src
+flags:
+  --safe
+  --cubical
