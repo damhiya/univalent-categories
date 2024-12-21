@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
+import Cubical.Data.Unit as U
 import Cubical.Data.Sigma as Σ
 
 record Category a b : Type (ℓ-suc (a ⊔ b)) where
@@ -43,6 +44,18 @@ open _≅_ public
 
 isUnivalent : ∀ {a b} → Category a b → Type (a ⊔ b)
 isUnivalent C = ∀ {x y} → isEquiv (pathToIso C {x} {y})
+
+Unit : Category ℓ-zero ℓ-zero
+Unit = record
+  { Ob = U.Unit
+  ; Hom = λ x y → U.Unit
+  ; id = λ x → U.tt
+  ; _⋆_ = λ f g → U.tt
+  ; ⋆-identityˡ = λ f → refl
+  ; ⋆-identityʳ = λ f → refl
+  ; ⋆-assoc = λ f g h → refl
+  ; isSet-Hom = U.isSetUnit
+  }
 
 _×_ : ∀ {a b c d} → Category a b → Category c d → Category (a ⊔ c) (b ⊔ d)
 C × D =
@@ -95,6 +108,8 @@ record NatTrans
     mor : ∀ x → D .Hom (F .F₀ x) (G .F₀ x)
     natural : ∀ {x y} (f : C .Hom x y) → F .F₁ f ⋆₂ mor y ≡ mor x ⋆₂ G .F₁ f
 
+open NatTrans public
+
 record NatIso
   {c₀ c₁ d₀ d₁}
   {C : Category c₀ c₁}
@@ -106,3 +121,5 @@ record NatIso
   field
     mor : ∀ x → F .F₀ x ≅₂ G .F₀ x
     natural : ∀ {x y} (f : C .Hom x y) → F .F₁ f ⋆₂ mor y .fwd ≡ mor x .fwd ⋆₂ G .F₁ f
+
+open NatIso public
