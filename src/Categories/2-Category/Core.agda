@@ -1,8 +1,9 @@
-module Categories.2Cat where
+module Categories.2-Category.Core where
 
 open import Cubical.Foundations.Prelude as P renaming (ℓ-max to _⊔_) hiding (_∙_)
 
-import Categories.1Cat as C¹
+import Categories.1-Category.Core as C¹
+import Categories.1-Category.Constructions as C¹
 
 record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
 
