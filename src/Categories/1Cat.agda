@@ -18,32 +18,38 @@ record Category a b : Type (ℓ-suc (a ⊔ b)) where
     ⋆-assoc : ∀ {x y z w} (f : Hom x y) (g : Hom y z) (h : Hom z w) → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
     isSet-Hom : ∀ {x y} → isSet (Hom x y)
 
-  record _≅_ (x y : Ob) : Type b where
-    field
-      fwd : Hom x y
-      bwd : Hom y x
-      fwd-bwd : fwd ⋆ bwd ≡ id x
-      bwd-fwd : bwd ⋆ fwd ≡ id y
+open Category using (Ob; Hom; isSet-Hom) public
 
-  ≅-refl : ∀ x → x ≅ x
-  ≅-refl x = record
-    { fwd = id x
-    ; bwd = id x
-    ; fwd-bwd = ⋆-identityˡ (id x)
-    ; bwd-fwd = ⋆-identityˡ (id x)
+module _ {a} {b} (C : Category a b) where
+
+  open Category C using (id; _⋆_; ⋆-identityˡ)
+
+  record Iso (x y : C .Ob) : Type b where
+    field
+      fun : C .Hom x y
+      inv : C .Hom y x
+      rightInv : fun ⋆ inv ≡ id x
+      leftInv : inv ⋆ fun ≡ id y
+
+  idIso : ∀ x → Iso x x
+  idIso x =
+    record
+    { fun = id x
+    ; inv = id x
+    ; rightInv = ⋆-identityˡ (id x)
+    ; leftInv = ⋆-identityˡ (id x)
     }
 
-  pathToIso : ∀ {x y} → x ≡ y → x ≅ y
-  pathToIso {x} {y} p = subst (λ y → x ≅ y) p (≅-refl x)
+  pathToIso : ∀ {x y} → x ≡ y → Iso x y
+  pathToIso {x} {y} p = subst (λ y → Iso x y) p (idIso x)
 
-  pathToIso-refl : ∀ {x} → pathToIso refl ≡ (≅-refl x)
-  pathToIso-refl {x} = substRefl {B = λ y → x ≅ y} (≅-refl x)
+  pathToIso-refl : ∀ {x} → pathToIso refl ≡ idIso x
+  pathToIso-refl {x} = substRefl {B = λ y → Iso x y} (idIso x)
 
-open Category public
-open _≅_ public
+  isUnivalent : Type (a ⊔ b)
+  isUnivalent = ∀ {x y} → isEquiv (pathToIso {x} {y})
 
-isUnivalent : ∀ {a b} → Category a b → Type (a ⊔ b)
-isUnivalent C = ∀ {x y} → isEquiv (pathToIso C {x} {y})
+open Iso public
 
 Unit : Category ℓ-zero ℓ-zero
 Unit = record
@@ -83,16 +89,14 @@ record Functor
   field
     F₀ : C .Ob → D .Ob
     F₁ : ∀ {x y} → C .Hom x y → D .Hom (F₀ x) (F₀ y)
-    F-id : ∀ {x} → F₁ (C .id x) ≡ D .id (F₀ x)
+    F-id : ∀ x → F₁ (C .id x) ≡ D .id (F₀ x)
     F-⋆ : ∀ {x y z} (f : C .Hom x y) (g : C .Hom y z) → F₁ (f ⋆₁ g) ≡ F₁ f ⋆₂ F₁ g
-
-open Functor public
 
 Id : ∀ {a b} (C : Category a b) → Functor C C
 Id C = record
   { F₀ = λ x → x
   ; F₁ = λ f → f
-  ; F-id = λ {x} → refl
+  ; F-id = λ x → refl
   ; F-⋆ = λ f g → refl
   }
 
@@ -102,11 +106,12 @@ record NatTrans
   {D : Category d₀ d₁}
   (F G : Functor C D)
   : Type (c₀ ⊔ c₁ ⊔ d₁) where
-  open Category C renaming (_⋆_ to _⋆₁_)
-  open Category D renaming (_⋆_ to _⋆₂_)
+  open Category D using (_⋆_)
+  open Functor F renaming (F₀ to F₀; F₁ to F₁)
+  open Functor G renaming (F₀ to G₀; F₁ to G₁)
   field
-    mor : ∀ x → D .Hom (F .F₀ x) (G .F₀ x)
-    natural : ∀ {x y} (f : C .Hom x y) → F .F₁ f ⋆₂ mor y ≡ mor x ⋆₂ G .F₁ f
+    fun : ∀ x → D .Hom (F₀ x) (G₀ x)
+    natural : ∀ {x y} (f : C .Hom x y) → F₁ f ⋆ fun y ≡ fun x ⋆ G₁ f
 
 open NatTrans public
 
@@ -116,10 +121,14 @@ record NatIso
   {D : Category d₀ d₁}
   (F G : Functor C D)
   : Type (c₀ ⊔ c₁ ⊔ d₁) where
-  open Category C renaming (_⋆_ to _⋆₁_)
-  open Category D renaming (_⋆_ to _⋆₂_; _≅_ to _≅₂_)
+  open Category D using (id; _⋆_)
+  open Functor F renaming (F₀ to F₀; F₁ to F₁)
+  open Functor G renaming (F₀ to G₀; F₁ to G₁)
   field
-    mor : ∀ x → F .F₀ x ≅₂ G .F₀ x
-    natural : ∀ {x y} (f : C .Hom x y) → F .F₁ f ⋆₂ mor y .fwd ≡ mor x .fwd ⋆₂ G .F₁ f
+    fun : ∀ x → Hom D (F₀ x) (G₀ x)
+    inv : ∀ x → Hom D (G₀ x) (F₀ x)
+    rightInv : ∀ x → fun x ⋆ inv x ≡ id (F₀ x)
+    leftInv : ∀ x → inv x ⋆ fun x ≡ id (G₀ x)
+    natural : ∀ {x y} (f : C .Hom x y) → F₁ f ⋆ fun y ≡ fun x ⋆ G₁ f
 
 open NatIso public
