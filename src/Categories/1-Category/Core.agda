@@ -2,6 +2,8 @@ module Categories.1-Category.Core where
 
 open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 
 record Category a b : Type (ℓ-suc (a ⊔ b)) where
   field
@@ -60,6 +62,23 @@ record Functor
     F-id : ∀ x → F₁ (C .id x) ≡ D .id (F₀ x)
     F-⋆ : ∀ {x y z} (f : C .Hom x y) (g : C .Hom y z) → F₁ (f ⋆₁ g) ≡ F₁ f ⋆₂ F₁ g
 
+module _
+  {c₀ c₁ d₀ d₁}
+  {C : Category c₀ c₁}
+  {D : Category d₀ d₁}
+  (F G : Functor C D)
+  where
+
+  open Category D using (_⋆_)
+  open Functor F renaming (F₀ to F₀; F₁ to F₁)
+  open Functor G renaming (F₀ to G₀; F₁ to G₁)
+
+  isNatural : ∀ (α : ∀ x → D .Hom (F₀ x) (G₀ x)) → Type (c₀ ⊔ c₁ ⊔ d₁)
+  isNatural α = ∀ {x y} (f : C .Hom x y) → F₁ f ⋆ α y ≡ α x ⋆ G₁ f
+
+  isProp-isNatural : ∀ α → isProp (isNatural α)
+  isProp-isNatural α p q = λ i → λ {x y} (f : C .Hom x y) → D .isSet-Hom _ _ (p f) (q f) i
+
 record NatTrans
   {c₀ c₁ d₀ d₁}
   {C : Category c₀ c₁}
@@ -71,7 +90,7 @@ record NatTrans
   open Functor G renaming (F₀ to G₀; F₁ to G₁)
   field
     fun : ∀ x → D .Hom (F₀ x) (G₀ x)
-    natural : ∀ {x y} (f : C .Hom x y) → F₁ f ⋆ fun y ≡ fun x ⋆ G₁ f
+    natural : isNatural F G fun
 
 open NatTrans public
 
@@ -89,6 +108,53 @@ record NatIso
     inv : ∀ x → Hom D (G₀ x) (F₀ x)
     rightInv : ∀ x → fun x ⋆ inv x ≡ id (F₀ x)
     leftInv : ∀ x → inv x ⋆ fun x ≡ id (G₀ x)
-    natural : ∀ {x y} (f : C .Hom x y) → F₁ f ⋆ fun y ≡ fun x ⋆ G₁ f
+    natural : isNatural F G fun
 
 open NatIso public
+
+module _
+  {c₀ c₁ d₀ d₁}
+  {C : Category c₀ c₁}
+  {D : Category d₀ d₁}
+  (F G : Functor C D)
+  where
+
+  open Category D using (_⋆_)
+  open Functor F renaming (F₀ to F₀; F₁ to F₁)
+  open Functor G renaming (F₀ to G₀; F₁ to G₁)
+
+  isInjectiveFun : ∀ (α β : NatTrans F G) → α .fun ≡ β .fun → α ≡ β
+  isInjectiveFun α β p i = record
+    { fun = p i
+    ; natural = isProp→PathP (λ j → isProp-isNatural F G (p j)) (α .natural) (β .natural) i
+    }
+
+  isInjectiveFun-refl : ∀ (α : NatTrans F G) → isInjectiveFun α α refl ≡ refl
+  isInjectiveFun-refl α i j = record
+    { fun = α .fun
+    ; natural = isProp→isSet
+                  (isProp-isNatural F G (α .fun))
+                  (α .natural) (α .natural)
+                  (λ k → isInjectiveFun α α refl k .natural) refl
+                  i j
+    }
+
+  isEmbedding-fun : ∀ (α β : NatTrans F G) → isEquiv (λ (p : α ≡ β) → cong fun p)
+  isEmbedding-fun α β .equiv-proof e = center , contract
+    where
+      center : fiber (λ (p : α ≡ β) → cong fun p) e
+      center = isInjectiveFun α β e , refl
+
+      contract : ∀ z → center ≡ z
+      contract (p , q) = J (λ e q → (isInjectiveFun α β e , refl) ≡ (p , q))
+                           (J (λ β p → (isInjectiveFun α β (cong fun p) , refl) ≡ (p , refl {x = cong fun p}))
+                              (λ i → isInjectiveFun-refl α i , refl)
+                              p)
+                           q
+
+  NatTrans≡Equiv : ∀ (α β : NatTrans F G) → (α ≡ β) ≃ (α .fun ≡ β .fun)
+  NatTrans≡Equiv α β = cong fun , isEmbedding-fun α β
+
+  isSet-NatTrans : isSet (NatTrans F G)
+  isSet-NatTrans α β = subst isProp (sym (ua (NatTrans≡Equiv α β ∙ₑ LiftEquiv {ℓ' = c₁}))) λ p q →
+                         cong lift (isSetΠ (λ x → D .isSet-Hom {F₀ x} {G₀ x}) (α .fun) (β .fun) (p .lower) (q .lower))
