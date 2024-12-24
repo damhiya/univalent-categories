@@ -123,7 +123,7 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     assoc-natural : ∀ {x y z w} {f f′ : Hom¹ x y} {g g′ : Hom¹ y z} {h h′ : Hom¹ z w} (α : Hom² f f′) (β : Hom² g g′) (γ : Hom² h h′) →
                     ((α ⋆² β) ⋆² γ) ∙ assoc f′ g′ h′ ≡ assoc f g h ∙ ((α ⋆² (β ⋆² γ)))
 
-  λ* : ∀ {x y} → C¹.NatIso [id⋆-] (C¹.Id (Hom x y))
+  λ* : ∀ {x y} → C¹.NatIso [id⋆-] (C¹.Cat.id (Hom x y))
   λ* {x} {y} =
     record
     { fun = lunit
@@ -133,7 +133,7 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     ; natural = lunit-natural
     }
 
-  ρ* : ∀ {x y} → C¹.NatIso [-⋆id] (C¹.Id (Hom x y))
+  ρ* : ∀ {x y} → C¹.NatIso [-⋆id] (C¹.Cat.id (Hom x y))
   ρ* =
     record
     { fun = runit

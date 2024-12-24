@@ -36,13 +36,17 @@ C × D =
     open Category C renaming (id to id₁; _⋆_ to _⋆₁_)
     open Category D renaming (id to id₂; _⋆_ to _⋆₂_)
 
-Id : ∀ {a b} (C : Category a b) → Functor C C
-Id C = record
-  { F₀ = λ x → x
-  ; F₁ = λ f → f
-  ; F-id = λ x → refl
-  ; F-⋆ = λ f g → refl
-  }
+module Cat
+  {a b : Level}
+  where
+
+  id : ∀ (C : Category a b) → Functor C C
+  id C = record
+    { F₀ = λ x → x
+    ; F₁ = λ f → f
+    ; F-id = λ x → refl
+    ; F-⋆ = λ f g → refl
+    }
 
 module FunctorCategory
   {a b c d}
