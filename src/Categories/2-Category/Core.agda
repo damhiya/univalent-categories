@@ -4,6 +4,8 @@ open import Cubical.Foundations.Prelude as P renaming (ℓ-max to _⊔_) hiding 
 
 import Categories.1-Category.Core as C¹
 import Categories.1-Category.Constructions as C¹
+import Categories.1-Category.Constructions.TerminalCategory as C¹
+import Categories.1-Category.Constructions.ProductCategory as C¹
 
 record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
 
@@ -43,7 +45,7 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     ⋆-preserve-∙ : ∀ {x y z} {f f′ f″ : Hom¹ x y} {g g′ g″ : Hom¹ y z} (α : Hom² f f′) (α′ : Hom² f′ f″) (β : Hom² g g′) (β′ : Hom² g′ g″) →
                    (α ∙ α′) ⋆² (β ∙ β′) ≡ (α ⋆² β) ∙ (α′ ⋆² β′)
 
-  id : ∀ x → C¹.Functor C¹.Unit (Hom x x)
+  id : ∀ x → C¹.Functor C¹.𝟏 (Hom x x)
   id x =
     record
     { F₀ = λ _ → id¹ x
