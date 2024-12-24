@@ -5,6 +5,8 @@ open import Cubical.Foundations.HLevels
 import Cubical.Data.Sigma as Σ
 open import Categories.1-Category.Core
 
+infixr 5 _×_
+
 _×_ : ∀ {a b c d} → Category a b → Category c d → Category (a ⊔ c) (b ⊔ d)
 C × D =
   record
