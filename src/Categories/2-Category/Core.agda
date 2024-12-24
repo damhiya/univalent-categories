@@ -3,7 +3,7 @@ module Categories.2-Category.Core where
 open import Cubical.Foundations.Prelude as P renaming (ℓ-max to _⊔_) hiding (_∙_)
 
 import Categories.1-Category.Core as C¹
-import Categories.1-Category.Constructions as C¹
+import Categories.1-Category.Constructions.IdFunctor as C¹
 import Categories.1-Category.Constructions.TerminalCategory as C¹
 import Categories.1-Category.Constructions.ProductCategory as C¹
 
@@ -125,7 +125,7 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     assoc-natural : ∀ {x y z w} {f f′ : Hom¹ x y} {g g′ : Hom¹ y z} {h h′ : Hom¹ z w} (α : Hom² f f′) (β : Hom² g g′) (γ : Hom² h h′) →
                     ((α ⋆² β) ⋆² γ) ∙ assoc f′ g′ h′ ≡ assoc f g h ∙ ((α ⋆² (β ⋆² γ)))
 
-  λ* : ∀ {x y} → C¹.NatIso [id⋆-] (C¹.Cat.id (Hom x y))
+  λ* : ∀ {x y} → C¹.NatIso [id⋆-] (C¹.id (Hom x y))
   λ* {x} {y} =
     record
     { fun = lunit
@@ -135,7 +135,7 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     ; natural = lunit-natural
     }
 
-  ρ* : ∀ {x y} → C¹.NatIso [-⋆id] (C¹.Cat.id (Hom x y))
+  ρ* : ∀ {x y} → C¹.NatIso [-⋆id] (C¹.id (Hom x y))
   ρ* =
     record
     { fun = runit
