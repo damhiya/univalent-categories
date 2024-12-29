@@ -59,8 +59,8 @@ record Functor
   field
     F₀ : C .Ob → D .Ob
     F₁ : ∀ {x y} → C .Hom x y → D .Hom (F₀ x) (F₀ y)
-    F-id : ∀ x → F₁ (C .id x) ≡ D .id (F₀ x)
-    F-⋆ : ∀ {x y z} (f : C .Hom x y) (g : C .Hom y z) → F₁ (f ⋆₁ g) ≡ F₁ f ⋆₂ F₁ g
+    respect-id : ∀ x → F₁ (C .id x) ≡ D .id (F₀ x)
+    respect-⋆ : ∀ {x y z} (f : C .Hom x y) (g : C .Hom y z) → F₁ (f ⋆₁ g) ≡ F₁ f ⋆₂ F₁ g
 
 module _
   {c₀ c₁ d₀ d₁}

@@ -41,8 +41,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     id¹ : ∀ x → Hom¹ x x
     _⋆¹_ : ∀ {x y z} → Hom¹ x y → Hom¹ y z → Hom¹ x z
     _⋆²_ : ∀ {x y z} {f f′ : Hom¹ x y} {g g′ : Hom¹ y z} → Hom² f f′ → Hom² g g′ → Hom² (f ⋆¹ g) (f′ ⋆¹ g′)
-    ⋆-preserve-id² : ∀ {x y z} (f : Hom¹ x y) (g : Hom¹ y z) → id² f ⋆² id² g ≡ id² (f ⋆¹ g)
-    ⋆-preserve-∙ : ∀ {x y z} {f f′ f″ : Hom¹ x y} {g g′ g″ : Hom¹ y z} (α : Hom² f f′) (α′ : Hom² f′ f″) (β : Hom² g g′) (β′ : Hom² g′ g″) →
+    ⋆-respect-id² : ∀ {x y z} (f : Hom¹ x y) (g : Hom¹ y z) → id² f ⋆² id² g ≡ id² (f ⋆¹ g)
+    ⋆-respect-∙ : ∀ {x y z} {f f′ f″ : Hom¹ x y} {g g′ g″ : Hom¹ y z} (α : Hom² f f′) (α′ : Hom² f′ f″) (β : Hom² g g′) (β′ : Hom² g′ g″) →
                    (α ∙ α′) ⋆² (β ∙ β′) ≡ (α ⋆² β) ∙ (α′ ⋆² β′)
 
   id : ∀ x → C¹.Functor C¹.𝟏 (Hom x x)
@@ -50,8 +50,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     record
     { F₀ = λ _ → id¹ x
     ; F₁ = λ _ → id² (id¹ x)
-    ; F-id = λ _ → refl
-    ; F-⋆ = λ _ _ → sym (∙-identityˡ (id² (id¹ x)))
+    ; respect-id = λ _ → refl
+    ; respect-⋆ = λ _ _ → sym (∙-identityˡ (id² (id¹ x)))
     }
 
   [-⋆-] : ∀ {x y z} → C¹.Functor (Hom x y C¹.× Hom y z) (Hom x z)
@@ -59,8 +59,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     record
     { F₀ = λ (f , g) → f ⋆¹ g
     ; F₁ = λ (α , β) → α ⋆² β
-    ; F-id = λ (f , g) → ⋆-preserve-id² f g
-    ; F-⋆ = λ α β → ⋆-preserve-∙ (α .fst) (β .fst) (α .snd) (β .snd)
+    ; respect-id = λ (f , g) → ⋆-respect-id² f g
+    ; respect-⋆ = λ α β → ⋆-respect-∙ (α .fst) (β .fst) (α .snd) (β .snd)
     }
 
   [id⋆-] : ∀ {x y} → C¹.Functor (Hom x y) (Hom x y)
@@ -68,8 +68,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     record
     { F₀ = λ f → id¹ x ⋆¹ f
     ; F₁ = λ α → id² (id¹ x) ⋆² α
-    ; F-id = λ f → ⋆-preserve-id² (id¹ x) f
-    ; F-⋆ = λ α β → cong (_⋆² (α ∙ β)) (sym (∙-identityˡ (id² (id¹ x)))) P.∙ ⋆-preserve-∙ (id² (id¹ x)) (id² (id¹ x)) α β
+    ; respect-id = λ f → ⋆-respect-id² (id¹ x) f
+    ; respect-⋆ = λ α β → cong (_⋆² (α ∙ β)) (sym (∙-identityˡ (id² (id¹ x)))) P.∙ ⋆-respect-∙ (id² (id¹ x)) (id² (id¹ x)) α β
     }
 
   [-⋆id] : ∀ {x y} → C¹.Functor (Hom x y) (Hom x y)
@@ -77,8 +77,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     record
     { F₀ = λ f → f ⋆¹ id¹ y
     ; F₁ = λ α → α ⋆² id² (id¹ y)
-    ; F-id = λ f → ⋆-preserve-id² f (id¹ y)
-    ; F-⋆ = λ α β → cong ((α ∙ β) ⋆²_) (sym (∙-identityˡ (id² (id¹ y)))) P.∙ ⋆-preserve-∙ α β (id² (id¹ y)) (id² (id¹ y))
+    ; respect-id = λ f → ⋆-respect-id² f (id¹ y)
+    ; respect-⋆ = λ α β → cong ((α ∙ β) ⋆²_) (sym (∙-identityˡ (id² (id¹ y)))) P.∙ ⋆-respect-∙ α β (id² (id¹ y)) (id² (id¹ y))
     }
 
   [[-⋆-]⋆-] : ∀ x y z w → C¹.Functor (Hom x y C¹.× (Hom y z C¹.× Hom z w)) (Hom x w)
@@ -86,8 +86,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     record
     { F₀ = λ (f , (g , h)) → (f ⋆¹ g) ⋆¹ h
     ; F₁ = λ (α , (β , γ)) → (α ⋆² β) ⋆² γ
-    ; F-id = λ (f , (g , h)) → cong (_⋆² (id² h)) (⋆-preserve-id² f g) P.∙ ⋆-preserve-id² (f ⋆¹ g) h
-    ; F-⋆ = λ (α₁ , (β₁ , γ₁)) (α₂ , (β₂ , γ₂)) → cong (_⋆² (γ₁ ∙ γ₂)) (⋆-preserve-∙ α₁ α₂ β₁ β₂) P.∙ ⋆-preserve-∙ (α₁ ⋆² β₁) (α₂ ⋆² β₂) γ₁ γ₂
+    ; respect-id = λ (f , (g , h)) → cong (_⋆² (id² h)) (⋆-respect-id² f g) P.∙ ⋆-respect-id² (f ⋆¹ g) h
+    ; respect-⋆ = λ (α₁ , (β₁ , γ₁)) (α₂ , (β₂ , γ₂)) → cong (_⋆² (γ₁ ∙ γ₂)) (⋆-respect-∙ α₁ α₂ β₁ β₂) P.∙ ⋆-respect-∙ (α₁ ⋆² β₁) (α₂ ⋆² β₂) γ₁ γ₂
     }
 
   [-⋆[-⋆-]] : ∀ x y z w → C¹.Functor (Hom x y C¹.× (Hom y z C¹.× Hom z w)) (Hom x w)
@@ -95,8 +95,8 @@ record Category a b c : Type (ℓ-suc (a ⊔ b ⊔ c)) where
     record
     { F₀ = λ (f , (g , h)) → f ⋆¹ (g ⋆¹ h)
     ; F₁ = λ (α , (β , γ)) → α ⋆² (β ⋆² γ)
-    ; F-id = λ (f , (g , h)) → cong ((id² f) ⋆²_) (⋆-preserve-id² g h) P.∙ ⋆-preserve-id² f (g ⋆¹ h)
-    ; F-⋆ = λ (α₁ , (β₁ , γ₁)) (α₂ , (β₂ , γ₂)) → cong ((α₁ ∙ α₂) ⋆²_) (⋆-preserve-∙ β₁ β₂ γ₁ γ₂) P.∙ ⋆-preserve-∙ α₁ α₂ (β₁ ⋆² γ₁) (β₂ ⋆² γ₂) 
+    ; respect-id = λ (f , (g , h)) → cong ((id² f) ⋆²_) (⋆-respect-id² g h) P.∙ ⋆-respect-id² f (g ⋆¹ h)
+    ; respect-⋆ = λ (α₁ , (β₁ , γ₁)) (α₂ , (β₂ , γ₂)) → cong ((α₁ ∙ α₂) ⋆²_) (⋆-respect-∙ β₁ β₂ γ₁ γ₂) P.∙ ⋆-respect-∙ α₁ α₂ (β₁ ⋆² γ₁) (β₂ ⋆² γ₂)
     }
 
   field
