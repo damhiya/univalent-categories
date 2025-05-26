@@ -37,19 +37,19 @@ module _
       open Functor H renaming (F₁ to H₁)
 
   ⋆-identityˡ : ∀ {F G : Functor C D} (α : NatTrans F G) → id F ⋆ α ≡ α
-  ⋆-identityˡ {F = F} {G = G} α = isInjectiveFun F G (id F ⋆ α) α (funExt λ x → ⋆D-identityˡ (α .fun x))
+  ⋆-identityˡ {F = F} {G = G} α = NatTrans≡.isInjectiveFun F G (id F ⋆ α) α (funExt λ x → ⋆D-identityˡ (α .fun x))
     where
       open Category D renaming (id to idD; _⋆_ to _⋆D_; ⋆-identityˡ to ⋆D-identityˡ)
       open Functor F
 
   ⋆-identityʳ : ∀ {F G : Functor C D} (α : NatTrans F G) → α ⋆ id G ≡ α
-  ⋆-identityʳ {F = F} {G = G} α = isInjectiveFun F G (α ⋆ id G) α (funExt λ x → ⋆D-identityʳ (α .fun x))
+  ⋆-identityʳ {F = F} {G = G} α = NatTrans≡.isInjectiveFun F G (α ⋆ id G) α (funExt λ x → ⋆D-identityʳ (α .fun x))
     where
       open Category D renaming (id to idD; _⋆_ to _⋆D_; ⋆-identityʳ to ⋆D-identityʳ)
       open Functor G renaming (F₀ to G₀; F₁ to G₁)
 
   ⋆-assoc : ∀ {F G H K : Functor C D} (α : NatTrans F G) (β : NatTrans G H) (γ : NatTrans H K) → (α ⋆ β) ⋆ γ ≡ α ⋆ (β ⋆ γ)
-  ⋆-assoc {F = F} {K = K} α β γ = isInjectiveFun F K ((α ⋆ β) ⋆ γ) (α ⋆ (β ⋆ γ)) (funExt λ x → ⋆D-assoc (α .fun x) (β .fun x) (γ .fun x))
+  ⋆-assoc {F = F} {K = K} α β γ = NatTrans≡.isInjectiveFun F K ((α ⋆ β) ⋆ γ) (α ⋆ (β ⋆ γ)) (funExt λ x → ⋆D-assoc (α .fun x) (β .fun x) (γ .fun x))
     where
       open Category D renaming (id to idD; _⋆_ to _⋆D_; ⋆-assoc to ⋆D-assoc)
 
@@ -63,5 +63,5 @@ module _
   ; ⋆-identityˡ = ⋆-identityˡ
   ; ⋆-identityʳ = ⋆-identityʳ
   ; ⋆-assoc = ⋆-assoc
-  ; isSet-Hom = λ {F G} → isSet-NatTrans F G
+  ; isSet-Hom = λ {F G} → NatTrans≡.isSet-NatTrans F G
   }

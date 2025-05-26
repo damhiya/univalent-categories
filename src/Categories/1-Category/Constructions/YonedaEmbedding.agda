@@ -13,21 +13,23 @@ module _ {a b} (C : Category a b) where
 
   open Category C hiding (Hom)
 
-  よ : Functor C [ C ^op , hSet b ]
+  よ : Functor C [ C ^op , HSet b ]
   よ = record
     { F₀ = λ y → record { F₀ = λ x → Hom[-,-] C .₀ (x , y)
-                        ; F₁ = λ f g → f ⋆ g
-                        ; respect-id = λ x → funExt λ f → ⋆-identityˡ f
-                        ; respect-⋆ = λ f g → funExt λ h → ⋆-assoc g f h
+                        ; F₁ = λ f → λ { .fun g → f ⋆ g }
+                        ; respect-id = λ x → Function≡.isInjectiveFun _ _ (funExt λ f → ⋆-identityˡ f)
+                        ; respect-⋆ = λ f g → Function≡.isInjectiveFun _ _ (funExt λ h → ⋆-assoc g f h)
                         }
-    ; F₁ = λ f → record { fun = λ x g → g ⋆ f; natural = λ g → funExt λ h → ⋆-assoc g h f }
-    ; respect-id = λ x → isInjectiveFun _ _ _ _ (funExt λ x → funExt λ f → ⋆-identityʳ f)
-    ; respect-⋆ = λ f g → isInjectiveFun _ _ _ _ (funExt λ x → funExt λ h → sym (⋆-assoc h f g))
+    ; F₁ = λ f → record { fun = λ x → λ { .fun g → g ⋆ f }
+                        ; natural = λ g → Function≡.isInjectiveFun _ _ (funExt λ h → ⋆-assoc g h f)
+                        }
+    ; respect-id = λ x → NatTrans≡.isInjectiveFun _ _ _ _ (funExt λ x → Function≡.isInjectiveFun _ _ (funExt λ f → ⋆-identityʳ f))
+    ; respect-⋆ = λ f g → NatTrans≡.isInjectiveFun _ _ _ _ (funExt λ x → Function≡.isInjectiveFun _ _ (funExt λ h → sym (⋆-assoc h f g)))
     }
 
 module _ {a b} (C : Category a b) where
 
-  よcov : Functor (C ^op) [ C , hSet b ]
-  よcov = subst (λ X → Functor (C ^op) [ X , hSet b ])
+  よcov : Functor (C ^op) [ C , HSet b ]
+  よcov = subst (λ X → Functor (C ^op) [ X , HSet b ])
                 (^op-involutive C)
                 (よ (C ^op))

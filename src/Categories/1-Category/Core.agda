@@ -112,7 +112,7 @@ record NatIso
 
 open NatIso public
 
-module _
+module NatTrans≡
   {c₀ c₁ d₀ d₁}
   {C : Category c₀ c₁}
   {D : Category d₀ d₁}
