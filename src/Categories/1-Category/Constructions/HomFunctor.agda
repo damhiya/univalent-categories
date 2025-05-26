@@ -8,8 +8,8 @@ open import Categories.1-Category.Constructions.HSet
 open import Categories.1-Category.Constructions.Opposite
 open import Categories.1-Category.Constructions.ProductCategory
 
-Hom : ∀ {a b} (C : Category a b) → Functor (C ^op × C) (hSet b)
-Hom C = record
+Hom[-,-] : ∀ {a b} (C : Category a b) → Functor (C ^op × C) (hSet b)
+Hom[-,-] C = record
   { F₀ = λ (x , y) → C[ x , y ] , C .isSet-Hom
   ; F₁ = λ (f , g) → λ h → f ⋆ (h ⋆ g)
   ; respect-id = λ (x , y) → funExt λ h → cong (id x ⋆_) (⋆-identityʳ h) ∙ ⋆-identityˡ h

@@ -8,5 +8,6 @@ import Categories.1-Category.Constructions.IdFunctor
 import Categories.1-Category.Constructions.Opposite
 import Categories.1-Category.Constructions.ProductCategory
 import Categories.1-Category.Constructions.TerminalCategory
+import Categories.1-Category.Constructions.YonedaEmbedding
 
 import Categories.2-Category.Core
