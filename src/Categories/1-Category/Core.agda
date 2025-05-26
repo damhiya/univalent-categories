@@ -16,26 +16,25 @@ record Category a b : Type (ℓ-suc (a ⊔ b)) where
     ⋆-assoc : ∀ {x y z w} (f : Hom x y) (g : Hom y z) (h : Hom z w) → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
     isSet-Hom : ∀ {x y} → isSet (Hom x y)
 
-open Category using (Ob; Hom; isSet-Hom) public
-
 module _ {a} {b} (C : Category a b) where
 
-  open Category C using (id; _⋆_; ⋆-identityˡ)
+  private
+    module C = Category C
 
-  record Iso (x y : C .Ob) : Type b where
+  record Iso (x y : C.Ob) : Type b where
     field
-      fun : C .Hom x y
-      inv : C .Hom y x
-      rightInv : fun ⋆ inv ≡ id x
-      leftInv : inv ⋆ fun ≡ id y
+      fun : C.Hom x y
+      inv : C.Hom y x
+      rightInv : fun C.⋆ inv ≡ C.id x
+      leftInv : inv C.⋆ fun ≡ C.id y
 
   idIso : ∀ x → Iso x x
   idIso x =
     record
-    { fun = id x
-    ; inv = id x
-    ; rightInv = ⋆-identityˡ (id x)
-    ; leftInv = ⋆-identityˡ (id x)
+    { fun = C.id x
+    ; inv = C.id x
+    ; rightInv = C.⋆-identityˡ (C.id x)
+    ; leftInv = C.⋆-identityˡ (C.id x)
     }
 
   pathToIso : ∀ {x y} → x ≡ y → Iso x y
@@ -54,13 +53,14 @@ record Functor
   (C : Category c₀ c₁)
   (D : Category d₀ d₁)
   : Type (ℓ-suc (c₀ ⊔ c₁ ⊔ d₀ ⊔ d₁)) where
-  open Category C renaming (_⋆_ to _⋆₁_)
-  open Category D renaming (_⋆_ to _⋆₂_)
+  private
+    module C = Category C
+    module D = Category D
   field
-    F₀ : C .Ob → D .Ob
-    F₁ : ∀ {x y} → C .Hom x y → D .Hom (F₀ x) (F₀ y)
-    respect-id : ∀ x → F₁ (C .id x) ≡ D .id (F₀ x)
-    respect-⋆ : ∀ {x y z} (f : C .Hom x y) (g : C .Hom y z) → F₁ (f ⋆₁ g) ≡ F₁ f ⋆₂ F₁ g
+    F₀ : C.Ob → D.Ob
+    F₁ : ∀ {x y} → C.Hom x y → D.Hom (F₀ x) (F₀ y)
+    respect-id : ∀ x → F₁ (C.id x) ≡ D.id (F₀ x)
+    respect-⋆ : ∀ {x y z} (f : C.Hom x y) (g : C.Hom y z) → F₁ (f C.⋆ g) ≡ F₁ f D.⋆ F₁ g
 
 module FunctorNotation {c₀ c₁ d₀ d₁} {C : Category c₀ c₁} {D : Category d₀ d₁} (F : Functor C D) where
 
@@ -73,17 +73,17 @@ module _
   (F G : Functor C D)
   where
 
-  open Category D using (_⋆_)
-
   private
+    module C = Category C
+    module D = Category D
     module F = FunctorNotation F
     module G = FunctorNotation G
 
-  isNatural : ∀ (α : ∀ x → D .Hom (F.₀ x) (G.₀ x)) → Type (c₀ ⊔ c₁ ⊔ d₁)
-  isNatural α = ∀ {x y} (f : C .Hom x y) → F.₁ f ⋆ α y ≡ α x ⋆ G.₁ f
+  isNatural : ∀ (α : ∀ x → D.Hom (F.₀ x) (G.₀ x)) → Type (c₀ ⊔ c₁ ⊔ d₁)
+  isNatural α = ∀ {x y} (f : C.Hom x y) → F.₁ f D.⋆ α y ≡ α x D.⋆ G.₁ f
 
   isProp-isNatural : ∀ α → isProp (isNatural α)
-  isProp-isNatural α p q = λ i → λ {x y} (f : C .Hom x y) → D .isSet-Hom _ _ (p f) (q f) i
+  isProp-isNatural α p q = λ i → λ {x y} (f : C.Hom x y) → D.isSet-Hom _ _ (p f) (q f) i
 
 record NatTrans
   {c₀ c₁ d₀ d₁}
@@ -91,12 +91,13 @@ record NatTrans
   {D : Category d₀ d₁}
   (F G : Functor C D)
   : Type (c₀ ⊔ c₁ ⊔ d₁) where
-  open Category D using (_⋆_)
+
   private
+    module D = Category D
     module F = FunctorNotation F
     module G = FunctorNotation G
   field
-    fun : ∀ x → D .Hom (F.₀ x) (G.₀ x)
+    fun : ∀ x → D.Hom (F.₀ x) (G.₀ x)
     natural : isNatural F G fun
 
 open NatTrans public
@@ -107,15 +108,16 @@ record NatIso
   {D : Category d₀ d₁}
   (F G : Functor C D)
   : Type (c₀ ⊔ c₁ ⊔ d₁) where
-  open Category D using (id; _⋆_)
+
   private
+    module D = Category D
     module F = FunctorNotation F
     module G = FunctorNotation G
   field
-    fun : ∀ x → Hom D (F.₀ x) (G.₀ x)
-    inv : ∀ x → Hom D (G.₀ x) (F.₀ x)
-    rightInv : ∀ x → fun x ⋆ inv x ≡ id (F.₀ x)
-    leftInv : ∀ x → inv x ⋆ fun x ≡ id (G.₀ x)
+    fun : ∀ x → D.Hom (F.₀ x) (G.₀ x)
+    inv : ∀ x → D.Hom (G.₀ x) (F.₀ x)
+    rightInv : ∀ x → fun x D.⋆ inv x ≡ D.id (F.₀ x)
+    leftInv : ∀ x → inv x D.⋆ fun x ≡ D.id (G.₀ x)
     natural : isNatural F G fun
 
 open NatIso public
@@ -127,8 +129,8 @@ module NatTrans≡
   (F G : Functor C D)
   where
 
-  open Category D using (_⋆_)
   private
+    module D = Category D
     module F = FunctorNotation F
     module G = FunctorNotation G
 
@@ -166,4 +168,4 @@ module NatTrans≡
 
   isSet-NatTrans : isSet (NatTrans F G)
   isSet-NatTrans α β = subst isProp (sym (ua (NatTrans≡Equiv α β ∙ₑ LiftEquiv {ℓ' = c₁}))) λ p q →
-                         cong lift (isSetΠ (λ x → D .isSet-Hom {F.₀ x} {G.₀ x}) (α .fun) (β .fun) (p .lower) (q .lower))
+                         cong lift (isSetΠ (λ x → D.isSet-Hom {F.₀ x} {G.₀ x}) (α .fun) (β .fun) (p .lower) (q .lower))
