@@ -62,6 +62,10 @@ record Functor
     respect-id : ∀ x → F₁ (C .id x) ≡ D .id (F₀ x)
     respect-⋆ : ∀ {x y z} (f : C .Hom x y) (g : C .Hom y z) → F₁ (f ⋆₁ g) ≡ F₁ f ⋆₂ F₁ g
 
+module FunctorNotation {c₀ c₁ d₀ d₁} {C : Category c₀ c₁} {D : Category d₀ d₁} (F : Functor C D) where
+
+  open Functor F renaming (F₀ to ₀; F₁ to ₁) public
+
 module _
   {c₀ c₁ d₀ d₁}
   {C : Category c₀ c₁}
@@ -70,11 +74,13 @@ module _
   where
 
   open Category D using (_⋆_)
-  open Functor F renaming (F₀ to F₀; F₁ to F₁)
-  open Functor G renaming (F₀ to G₀; F₁ to G₁)
 
-  isNatural : ∀ (α : ∀ x → D .Hom (F₀ x) (G₀ x)) → Type (c₀ ⊔ c₁ ⊔ d₁)
-  isNatural α = ∀ {x y} (f : C .Hom x y) → F₁ f ⋆ α y ≡ α x ⋆ G₁ f
+  private
+    module F = FunctorNotation F
+    module G = FunctorNotation G
+
+  isNatural : ∀ (α : ∀ x → D .Hom (F.₀ x) (G.₀ x)) → Type (c₀ ⊔ c₁ ⊔ d₁)
+  isNatural α = ∀ {x y} (f : C .Hom x y) → F.₁ f ⋆ α y ≡ α x ⋆ G.₁ f
 
   isProp-isNatural : ∀ α → isProp (isNatural α)
   isProp-isNatural α p q = λ i → λ {x y} (f : C .Hom x y) → D .isSet-Hom _ _ (p f) (q f) i
@@ -86,10 +92,11 @@ record NatTrans
   (F G : Functor C D)
   : Type (c₀ ⊔ c₁ ⊔ d₁) where
   open Category D using (_⋆_)
-  open Functor F renaming (F₀ to F₀; F₁ to F₁)
-  open Functor G renaming (F₀ to G₀; F₁ to G₁)
+  private
+    module F = FunctorNotation F
+    module G = FunctorNotation G
   field
-    fun : ∀ x → D .Hom (F₀ x) (G₀ x)
+    fun : ∀ x → D .Hom (F.₀ x) (G.₀ x)
     natural : isNatural F G fun
 
 open NatTrans public
@@ -101,13 +108,14 @@ record NatIso
   (F G : Functor C D)
   : Type (c₀ ⊔ c₁ ⊔ d₁) where
   open Category D using (id; _⋆_)
-  open Functor F renaming (F₀ to F₀; F₁ to F₁)
-  open Functor G renaming (F₀ to G₀; F₁ to G₁)
+  private
+    module F = FunctorNotation F
+    module G = FunctorNotation G
   field
-    fun : ∀ x → Hom D (F₀ x) (G₀ x)
-    inv : ∀ x → Hom D (G₀ x) (F₀ x)
-    rightInv : ∀ x → fun x ⋆ inv x ≡ id (F₀ x)
-    leftInv : ∀ x → inv x ⋆ fun x ≡ id (G₀ x)
+    fun : ∀ x → Hom D (F.₀ x) (G.₀ x)
+    inv : ∀ x → Hom D (G.₀ x) (F.₀ x)
+    rightInv : ∀ x → fun x ⋆ inv x ≡ id (F.₀ x)
+    leftInv : ∀ x → inv x ⋆ fun x ≡ id (G.₀ x)
     natural : isNatural F G fun
 
 open NatIso public
@@ -120,8 +128,9 @@ module NatTrans≡
   where
 
   open Category D using (_⋆_)
-  open Functor F renaming (F₀ to F₀; F₁ to F₁)
-  open Functor G renaming (F₀ to G₀; F₁ to G₁)
+  private
+    module F = FunctorNotation F
+    module G = FunctorNotation G
 
   isInjectiveFun : ∀ (α β : NatTrans F G) → α .fun ≡ β .fun → α ≡ β
   isInjectiveFun α β p i = record
@@ -157,4 +166,4 @@ module NatTrans≡
 
   isSet-NatTrans : isSet (NatTrans F G)
   isSet-NatTrans α β = subst isProp (sym (ua (NatTrans≡Equiv α β ∙ₑ LiftEquiv {ℓ' = c₁}))) λ p q →
-                         cong lift (isSetΠ (λ x → D .isSet-Hom {F₀ x} {G₀ x}) (α .fun) (β .fun) (p .lower) (q .lower))
+                         cong lift (isSetΠ (λ x → D .isSet-Hom {F.₀ x} {G.₀ x}) (α .fun) (β .fun) (p .lower) (q .lower))

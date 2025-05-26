@@ -7,15 +7,13 @@ open import Categories.1-Category.Constructions.FunctorCategory using ([_,_])
 open import Categories.1-Category.Constructions.HSet
 open import Categories.1-Category.Constructions.HomFunctor
 
-open Functor renaming (F₀ to ₀)
-
 module _ {a b} (C : Category a b) where
 
   open Category C hiding (Hom)
 
   よ : Functor C [ C ^op , HSet b ]
   よ = record
-    { F₀ = λ y → record { F₀ = λ x → Hom[-,-] C .₀ (x , y)
+    { F₀ = λ y → record { F₀ = λ x → Hom.₀ (x , y)
                         ; F₁ = λ f → λ { .fun g → f ⋆ g }
                         ; respect-id = λ x → Function≡.isInjectiveFun _ _ (funExt λ f → ⋆-identityˡ f)
                         ; respect-⋆ = λ f g → Function≡.isInjectiveFun _ _ (funExt λ h → ⋆-assoc g f h)
@@ -26,6 +24,8 @@ module _ {a b} (C : Category a b) where
     ; respect-id = λ x → NatTrans≡.isInjectiveFun _ _ _ _ (funExt λ x → Function≡.isInjectiveFun _ _ (funExt λ f → ⋆-identityʳ f))
     ; respect-⋆ = λ f g → NatTrans≡.isInjectiveFun _ _ _ _ (funExt λ x → Function≡.isInjectiveFun _ _ (funExt λ h → sym (⋆-assoc h f g)))
     }
+    where
+      module Hom = FunctorNotation (Hom[-,-] C)
 
 module _ {a b} (C : Category a b) where
 
