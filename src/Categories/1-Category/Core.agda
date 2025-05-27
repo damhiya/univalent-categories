@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Functions.Embedding
 
 record Category a b : Type (ℓ-suc (a ⊔ b)) where
   field
@@ -130,42 +131,22 @@ module NatTrans≡
   where
 
   private
+    module C = Category C
     module D = Category D
     module F = FunctorNotation F
     module G = FunctorNotation G
 
-  isInjectiveFun : ∀ (α β : NatTrans F G) → α .fun ≡ β .fun → α ≡ β
-  isInjectiveFun α β p i = record
+  isInjective-fun : ∀ (α β : NatTrans F G) → α .fun ≡ β .fun → α ≡ β
+  isInjective-fun α β p i = record
     { fun = p i
     ; natural = isProp→PathP (λ j → isProp-isNatural F G (p j)) (α .natural) (β .natural) i
     }
 
-  isInjectiveFun-refl : ∀ (α : NatTrans F G) → isInjectiveFun α α refl ≡ refl
-  isInjectiveFun-refl α i j = record
-    { fun = α .fun
-    ; natural = isProp→isSet
-                  (isProp-isNatural F G (α .fun))
-                  (α .natural) (α .natural)
-                  (λ k → isInjectiveFun α α refl k .natural) refl
-                  i j
-    }
+  isEmbedding-fun : isEmbedding {A = NatTrans F G} {B = ∀ (x : C.Ob) → D.Hom (F.₀ x) (G.₀ x)} fun
+  isEmbedding-fun = injEmbedding (isSetΠ λ x → D.isSet-Hom) (isInjective-fun _ _)
 
-  isEmbedding-fun : ∀ (α β : NatTrans F G) → isEquiv (λ (p : α ≡ β) → cong fun p)
-  isEmbedding-fun α β .equiv-proof e = center , contract
-    where
-      center : fiber (λ (p : α ≡ β) → cong fun p) e
-      center = isInjectiveFun α β e , refl
-
-      contract : ∀ z → center ≡ z
-      contract (p , q) = J (λ e q → (isInjectiveFun α β e , refl) ≡ (p , q))
-                           (J (λ β p → (isInjectiveFun α β (cong fun p) , refl) ≡ (p , refl {x = cong fun p}))
-                              (λ i → isInjectiveFun-refl α i , refl)
-                              p)
-                           q
-
-  NatTrans≡Equiv : ∀ (α β : NatTrans F G) → (α ≡ β) ≃ (α .fun ≡ β .fun)
-  NatTrans≡Equiv α β = cong fun , isEmbedding-fun α β
+  congFunEquiv : ∀ (α β : NatTrans F G) → (α ≡ β) ≃ (α .fun ≡ β .fun)
+  congFunEquiv α β = cong fun , isEmbedding-fun α β
 
   isSet-NatTrans : isSet (NatTrans F G)
-  isSet-NatTrans α β = subst isProp (sym (ua (NatTrans≡Equiv α β ∙ₑ LiftEquiv {ℓ' = c₁}))) λ p q →
-                         cong lift (isSetΠ (λ x → D.isSet-Hom {F.₀ x} {G.₀ x}) (α .fun) (β .fun) (p .lower) (q .lower))
+  isSet-NatTrans α β = isOfHLevelRespectEquiv 1 (invEquiv (congFunEquiv α β)) (isSetΠ (λ x → D.isSet-Hom) (α .fun) (β .fun))

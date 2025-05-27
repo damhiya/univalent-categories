@@ -4,10 +4,12 @@ open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Reflection.StrictEquiv
 open import Categories.1-Category.Core
 
 record Function {a} (A B : hSet a) : Type a where
+  constructor function
   field
     fun : typ A → typ B
 
@@ -15,30 +17,17 @@ open Function public
 
 module Function≡ {a} {A B : hSet a} where
 
-  isInjectiveFun : ∀ (f g : Function A B) → f .fun ≡ g .fun → f ≡ g
-  isInjectiveFun f g p i .fun = p i
+  funEquiv : Function A B ≃ (typ A → typ B)
+  funEquiv = strictEquiv fun function
 
-  isInjectiveFun-refl : ∀ (f : Function A B) → isInjectiveFun f f refl ≡ refl
-  isInjectiveFun-refl f = refl
+  congFunEquiv : ∀ {f g : Function A B} → (f ≡ g) ≃ (f .fun ≡ g .fun)
+  congFunEquiv = congEquiv funEquiv
 
-  isEmbedding-fun : ∀ (f g : Function A B) → isEquiv (λ (p : f ≡ g) → cong fun p)
-  isEmbedding-fun f g .equiv-proof e = center , contract
-    where
-      center : fiber (λ (p : f ≡ g) → cong fun p) e
-      center = isInjectiveFun f g e , refl
-
-      contract : ∀ z → center ≡ z
-      contract (p , q) = J (λ e q → (isInjectiveFun f g e , refl) ≡ (p , q))
-                           (J (λ g p → (isInjectiveFun f g (cong fun p) , refl) ≡ (p , refl {x = cong fun p}))
-                              (λ i → isInjectiveFun-refl f i , refl)
-                              p)
-                           q
-
-  Function≡Equiv : ∀ (f g : Function A B) → (f ≡ g) ≃ (f .fun ≡ g .fun)
-  Function≡Equiv f g = cong fun , isEmbedding-fun f g
+  isInjective-fun : ∀ {f g : Function A B} → f .fun ≡ g .fun → f ≡ g
+  isInjective-fun = invEq congFunEquiv
 
   isSet-Function : isSet (Function A B)
-  isSet-Function f g = subst isProp (sym (ua (Function≡Equiv f g))) (isSet→ (str B) (f .fun) (g .fun))
+  isSet-Function = isOfHLevelRespectEquiv 2 (invEquiv funEquiv) (isSet→ (str B))
 
 HSet : ∀ a → Category (ℓ-suc a) a
 HSet a = record

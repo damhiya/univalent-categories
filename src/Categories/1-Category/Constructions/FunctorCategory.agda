@@ -37,17 +37,17 @@ module _
       module H = FunctorNotation H
 
   ⋆-identityˡ : ∀ {F G : Functor C D} (α : NatTrans F G) → id F ⋆ α ≡ α
-  ⋆-identityˡ {F = F} {G = G} α = NatTrans≡.isInjectiveFun F G (id F ⋆ α) α (funExt λ x → D.⋆-identityˡ (α .fun x))
+  ⋆-identityˡ {F = F} {G = G} α = NatTrans≡.isInjective-fun F G (id F ⋆ α) α (funExt λ x → D.⋆-identityˡ (α .fun x))
     where
       module D = Category D
 
   ⋆-identityʳ : ∀ {F G : Functor C D} (α : NatTrans F G) → α ⋆ id G ≡ α
-  ⋆-identityʳ {F = F} {G = G} α = NatTrans≡.isInjectiveFun F G (α ⋆ id G) α (funExt λ x → D.⋆-identityʳ (α .fun x))
+  ⋆-identityʳ {F = F} {G = G} α = NatTrans≡.isInjective-fun F G (α ⋆ id G) α (funExt λ x → D.⋆-identityʳ (α .fun x))
     where
       module D = Category D
 
   ⋆-assoc : ∀ {F G H K : Functor C D} (α : NatTrans F G) (β : NatTrans G H) (γ : NatTrans H K) → (α ⋆ β) ⋆ γ ≡ α ⋆ (β ⋆ γ)
-  ⋆-assoc {F = F} {K = K} α β γ = NatTrans≡.isInjectiveFun F K ((α ⋆ β) ⋆ γ) (α ⋆ (β ⋆ γ)) (funExt λ x → D.⋆-assoc (α .fun x) (β .fun x) (γ .fun x))
+  ⋆-assoc {F = F} {K = K} α β γ = NatTrans≡.isInjective-fun F K ((α ⋆ β) ⋆ γ) (α ⋆ (β ⋆ γ)) (funExt λ x → D.⋆-assoc (α .fun x) (β .fun x) (γ .fun x))
     where
       module D = Category D
 
