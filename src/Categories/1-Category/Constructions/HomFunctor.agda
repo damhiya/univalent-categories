@@ -11,9 +11,9 @@ open import Categories.1-Category.Constructions.ProductCategory
 Hom[-,-] : ∀ {a b} (C : Category a b) → Functor (C ^op × C) (HSet b)
 Hom[-,-] C = record
   { F₀ = λ (x , y) → C.Hom x y , C.isSet-Hom
-  ; F₁ = λ (f , g) → λ { .fun h → f C.⋆ (h C.⋆ g) }
-  ; respect-id = λ (x , y) → Function≡.isInjective-fun (funExt λ h → cong (C.id x C.⋆_) (C.⋆-identityʳ h) ∙ C.⋆-identityˡ h)
-  ; respect-⋆ = λ (f₁ , f₂) (g₁ , g₂) → Function≡.isInjective-fun (funExt λ h → C.⋆-assoc _ _ _ ∙ cong (g₁ C.⋆_) (sym (C.⋆-assoc _ _ _ ∙ cong (f₁ C.⋆_) (C.⋆-assoc _ _ _))))
+  ; F₁ = λ (f , g) → λ { .fun h → g C.∘ (h C.∘ f) }
+  ; respect-id = λ (x , y) → Function≡.isInjective-fun (funExt λ h → C.∘-identityˡ (h C.∘ C.id x) ∙ C.∘-identityʳ h)
+  ; respect-∘ = λ (f₁ , f₂) (g₁ , g₂) → Function≡.isInjective-fun (funExt λ h → C.∘-assoc _ _ _ ∙ cong (g₂ C.∘_) (cong (f₂ C.∘_) (sym (C.∘-assoc _ _ _)) ∙ sym (C.∘-assoc _ _ _)))
   }
   where
     module C = Category C

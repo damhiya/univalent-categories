@@ -8,10 +8,10 @@ C ^op = record
   { Ob = C.Ob
   ; Hom = λ x y → C.Hom y x
   ; id = C.id
-  ; _⋆_ = λ f g → g C.⋆ f
-  ; ⋆-identityˡ = C.⋆-identityʳ
-  ; ⋆-identityʳ = C.⋆-identityˡ
-  ; ⋆-assoc = λ f g h → sym (C.⋆-assoc h g f)
+  ; _∘_ = λ f g → g C.∘ f
+  ; ∘-identityˡ = C.∘-identityʳ
+  ; ∘-identityʳ = C.∘-identityˡ
+  ; ∘-assoc = λ f g h → sym (C.∘-assoc h g f)
   ; isSet-Hom = C.isSet-Hom
   }
   where

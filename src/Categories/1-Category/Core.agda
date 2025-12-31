@@ -11,10 +11,10 @@ record Category a b : Type (ℓ-suc (a ⊔ b)) where
     Ob : Type a
     Hom : Ob → Ob → Type b
     id : ∀ x → Hom x x
-    _⋆_ : ∀ {x y z} → Hom x y → Hom y z → Hom x z
-    ⋆-identityˡ : ∀ {x y} (f : Hom x y) → id x ⋆ f ≡ f
-    ⋆-identityʳ : ∀ {x y} (f : Hom x y) → f ⋆ id y ≡ f
-    ⋆-assoc : ∀ {x y z w} (f : Hom x y) (g : Hom y z) (h : Hom z w) → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
+    _∘_ : ∀ {x y z} → Hom y z → Hom x y → Hom x z
+    ∘-identityˡ : ∀ {x y} (f : Hom x y) → id y ∘ f ≡ f
+    ∘-identityʳ : ∀ {x y} (f : Hom x y) → f ∘ id x ≡ f
+    ∘-assoc : ∀ {x y z w} (f : Hom x y) (g : Hom y z) (h : Hom z w) → (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
     isSet-Hom : ∀ {x y} → isSet (Hom x y)
 
 module _ {a} {b} (C : Category a b) where
@@ -26,16 +26,16 @@ module _ {a} {b} (C : Category a b) where
     field
       fun : C.Hom x y
       inv : C.Hom y x
-      rightInv : fun C.⋆ inv ≡ C.id x
-      leftInv : inv C.⋆ fun ≡ C.id y
+      rightInv : fun C.∘ inv ≡ C.id y
+      leftInv : inv C.∘ fun ≡ C.id x
 
   idIso : ∀ x → Iso x x
   idIso x =
     record
     { fun = C.id x
     ; inv = C.id x
-    ; rightInv = C.⋆-identityˡ (C.id x)
-    ; leftInv = C.⋆-identityˡ (C.id x)
+    ; rightInv = C.∘-identityˡ (C.id x)
+    ; leftInv = C.∘-identityˡ (C.id x)
     }
 
   pathToIso : ∀ {x y} → x ≡ y → Iso x y
@@ -61,7 +61,7 @@ record Functor
     F₀ : C.Ob → D.Ob
     F₁ : ∀ {x y} → C.Hom x y → D.Hom (F₀ x) (F₀ y)
     respect-id : ∀ x → F₁ (C.id x) ≡ D.id (F₀ x)
-    respect-⋆ : ∀ {x y z} (f : C.Hom x y) (g : C.Hom y z) → F₁ (f C.⋆ g) ≡ F₁ f D.⋆ F₁ g
+    respect-∘ : ∀ {x y z} (f : C.Hom x y) (g : C.Hom y z) → F₁ (g C.∘ f) ≡ F₁ g D.∘ F₁ f
 
 module FunctorNotation {c₀ c₁ d₀ d₁} {C : Category c₀ c₁} {D : Category d₀ d₁} (F : Functor C D) where
 
@@ -81,7 +81,7 @@ module _
     module G = FunctorNotation G
 
   isNatural : ∀ (α : ∀ x → D.Hom (F.₀ x) (G.₀ x)) → Type (c₀ ⊔ c₁ ⊔ d₁)
-  isNatural α = ∀ {x y} (f : C.Hom x y) → F.₁ f D.⋆ α y ≡ α x D.⋆ G.₁ f
+  isNatural α = ∀ {x y} (f : C.Hom x y) → α y D.∘ F.₁ f ≡ G.₁ f D.∘ α x
 
   isProp-isNatural : ∀ α → isProp (isNatural α)
   isProp-isNatural α p q = λ i → λ {x y} (f : C.Hom x y) → D.isSet-Hom _ _ (p f) (q f) i
@@ -117,8 +117,8 @@ record NatIso
   field
     fun : ∀ x → D.Hom (F.₀ x) (G.₀ x)
     inv : ∀ x → D.Hom (G.₀ x) (F.₀ x)
-    rightInv : ∀ x → fun x D.⋆ inv x ≡ D.id (F.₀ x)
-    leftInv : ∀ x → inv x D.⋆ fun x ≡ D.id (G.₀ x)
+    rightInv : ∀ x → fun x D.∘ inv x ≡ D.id (G.₀ x)
+    leftInv : ∀ x → inv x D.∘ fun x ≡ D.id (F.₀ x)
     natural : isNatural F G fun
 
 open NatIso public

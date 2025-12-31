@@ -9,9 +9,9 @@ open import Categories.1-Category.Core
   { Ob = Unit
   ; Hom = λ x y → Unit
   ; id = λ x → tt
-  ; _⋆_ = λ f g → tt
-  ; ⋆-identityˡ = λ f → refl
-  ; ⋆-identityʳ = λ f → refl
-  ; ⋆-assoc = λ f g h → refl
+  ; _∘_ = λ f g → tt
+  ; ∘-identityˡ = λ f → refl
+  ; ∘-identityʳ = λ f → refl
+  ; ∘-assoc = λ f g h → refl
   ; isSet-Hom = isSetUnit
   }

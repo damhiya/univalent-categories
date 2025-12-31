@@ -34,9 +34,9 @@ HSet a = record
   { Ob = hSet a
   ; Hom = Function
   ; id = λ x → λ { .fun a → a }
-  ; _⋆_ = λ f g → λ { .fun a → (g .fun (f .fun a)) }
-  ; ⋆-identityˡ = λ f → refl
-  ; ⋆-identityʳ = λ f → refl
-  ; ⋆-assoc = λ f g h → refl
+  ; _∘_ = λ f g → λ { .fun a → (f .fun (g .fun a)) }
+  ; ∘-identityˡ = λ f → refl
+  ; ∘-identityʳ = λ f → refl
+  ; ∘-assoc = λ f g h → refl
   ; isSet-Hom = λ {x} {y} → Function≡.isSet-Function
   }

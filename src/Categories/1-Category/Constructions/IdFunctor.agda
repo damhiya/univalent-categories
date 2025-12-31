@@ -8,5 +8,5 @@ id C = record
   { F₀ = λ x → x
   ; F₁ = λ f → f
   ; respect-id = λ x → refl
-  ; respect-⋆ = λ f g → refl
+  ; respect-∘ = λ f g → refl
   }
