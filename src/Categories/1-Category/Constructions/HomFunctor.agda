@@ -4,11 +4,11 @@ open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 import Cubical.Data.Sigma.Base as Σ
 
 open import Categories.1-Category.Core
-open import Categories.1-Category.Constructions.HSet
+open import Categories.1-Category.Constructions.Set
 open import Categories.1-Category.Constructions.Opposite
 open import Categories.1-Category.Constructions.ProductCategory
 
-Hom[-,-] : ∀ {a b} (C : Category a b) → Functor (C ^op × C) (HSet b)
+Hom[-,-] : ∀ {a b} (C : Category a b) → Functor (C ^op × C) (Set b)
 Hom[-,-] C = record
   { F₀ = λ (x , y) → C.Hom x y , C.isSet-Hom
   ; F₁ = λ (f , g) → λ { .fun h → g C.∘ (h C.∘ f) }

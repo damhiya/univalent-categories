@@ -4,3 +4,4 @@ include: src
 flags:
   --safe
   --cubical
+  --no-import-sorts

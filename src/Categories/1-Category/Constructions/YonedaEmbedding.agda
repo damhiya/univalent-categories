@@ -4,14 +4,14 @@ open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Categories.1-Category.Core
 open import Categories.1-Category.Constructions.Opposite
 open import Categories.1-Category.Constructions.FunctorCategory using ([_,_])
-open import Categories.1-Category.Constructions.HSet
+open import Categories.1-Category.Constructions.Set
 
 module _ {a b} (C : Category a b) where
 
   private
     module C = Category C
 
-  よ₀ : C.Ob → Functor (C ^op) (HSet b)
+  よ₀ : C.Ob → Functor (C ^op) (Set b)
   よ₀ y = record
     { F₀ = λ x → C.Hom x y , C.isSet-Hom
     ; F₁ = λ f → λ { .fun g → g C.∘ f }
@@ -25,7 +25,7 @@ module _ {a b} (C : Category a b) where
     ; natural = λ g → Function≡.isInjective-fun (funExt λ h → sym (C.∘-assoc g h f))
     }
 
-  よ : Functor C [ C ^op , HSet b ]
+  よ : Functor C [ C ^op , Set b ]
   よ = record
     { F₀ = よ₀
     ; F₁ = よ₁
@@ -35,7 +35,7 @@ module _ {a b} (C : Category a b) where
 
 module _ {a b} (C : Category a b) where
 
-  よcov : Functor (C ^op) [ C , HSet b ]
-  よcov = subst (λ X → Functor (C ^op) [ X , HSet b ])
+  よcov : Functor (C ^op) [ C , Set b ]
+  よcov = subst (λ X → Functor (C ^op) [ X , Set b ])
                 (^op-involutive C)
                 (よ (C ^op))

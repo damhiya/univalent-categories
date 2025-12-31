@@ -1,4 +1,4 @@
-module Categories.1-Category.Constructions.HSet where
+module Categories.1-Category.Constructions.Set where
 
 open import Cubical.Foundations.Prelude renaming (ℓ-max to _⊔_)
 open import Cubical.Foundations.Equiv
@@ -29,8 +29,8 @@ module Function≡ {a} {A B : hSet a} where
   isSet-Function : isSet (Function A B)
   isSet-Function = isOfHLevelRespectEquiv 2 (invEquiv funEquiv) (isSet→ (str B))
 
-HSet : ∀ a → Category (ℓ-suc a) a
-HSet a = record
+Set : ∀ a → Category (ℓ-suc a) a
+Set a = record
   { Ob = hSet a
   ; Hom = Function
   ; id = λ x → λ { .fun a → a }
